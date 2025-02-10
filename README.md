@@ -1,6 +1,122 @@
 # Prisma (Stater lesson)
 Prisma ORM is a next-generation Node.js and TypeScript ORM that unlocks a new level of developer experience when working with databases thanks to its intuitive data model, automated migrations, type-safety & auto-completion.
 
+## Getting started with prisma (phase 2)
+
+<p align="center">
+    <a href="#" style="display: block;" align="center">
+        <img src="https://i.pinimg.com/originals/1f/84/8d/1f848da8cc8c9e60c698fbe5cf85c015.gif" alt="kenpachi zaraki" width="60%" />
+    </a>
+</p>
+
+### Setting up Prisma Client
+The Database has some initial data, setting up the prisma Client and connect it to our database.
+
+```typescript
+import { PrismaClient } from '@prisma/client'
+import { withAccelerate } from '@prisma/extension-accelerate'
+
+const prisma = new PrismaClient().$extends(withAccelerate())
+
+const globalForPrisma = global as unknown as { prisma: typeof prisma }
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+
+export default prisma
+```
+This will create a Prisma Client and attach it to the global object so that only one instance of the client is created for the application. This will resolve issues with hot reloading that can occur when using Prisma ORM with Next.js in development mode.
+
+## = Query the Database with Prisma ORM
+Inside the app directory :
+
+```typescript
+export default async function Home() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center -mt-16">
+      <h1 className="text-4xl font-bold mb-8 font-[family-name:var(--font-geist-sans)] text-[#333333]">
+        Superblog
+      </h1>
+      <ol className="list-decimal list-inside font-[family-name:var(--font-geist-sans)]">
+        <li className="mb-2">Alice</li>
+        <li>Bob</li>
+      </ol>
+    </div>
+  );
+}
+```
+This is a basic page with a title and a list of users. However, that list is static and doesn't change
+
+The client is imported
+```typescript
+import prisma from '@/lib/prisma'
+``` and queried the `User` model for all the users,
+```typescript
+ const users = await prisma.user.findMany();
+```
+and it will display them in a list
+```typescript
+         {users.map((user) => (
+          <li key={user.id} className="mb-2">
+            {user.name}
+          </li>
+        ))}
+```
+
+## Add a Posts detail page
+Inside the directory I've created a new `[id]` directory and a new `page.tsx` file inside of that.
+
+```typescript
+import prisma from "@/lib/prisma";
+
+export default async function Post({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center -mt-16">
+      <article className="max-w-2xl space-y-4 font-[family-name:var(--font-geist-sans)]">
+        <h1 className="text-4xl font-bold mb-8 text-[#333333]">My first post</h1>
+        <p className="text-gray-600 text-center">by Anonymous</p>
+        <div className="prose prose-gray mt-8">
+          No content available.
+        </div>
+      </article>
+    </div>
+  );
+}
+```
+
+Just like before the page is static so updating it with params that are added to the page.
+
+We're using Prisma Client to fetch the post by its id, which we get from the params object.
+
+```typescript
+  const { id } = await params;
+  const post = await prisma.post.findUnique({
+    where: { id: parseInt(id) },
+    include: {
+      author: true,
+    },
+  });
+
+  if (!post) {
+    notFound();
+  }
+```
+
+In case the post doesn't exist (maybe it was deleted or maybe you typed a wrong ID), I've called notFound() to display a 404 page.
+
+```typescript
+import { notFound } from "next/navigation";
+```
+
+We then display the post's title, content, and author. If the post doesn't have content, we display a placeholder message.
+
+```typescript
+        <h1 className="text-4xl font-bold mb-8 text-[#333333]">{post.title}</h1>
+        <p className="text-gray-600 text-center">by {post.author.name}</p>
+        <div className="prose prose-gray mt-8">
+          {post.content || "No content available."}
+```
+
+
 ## Getting started with prisma (phase1)
 
 <p align="center">
