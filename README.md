@@ -26,7 +26,7 @@ export default prisma
 ```
 This will create a Prisma Client and attach it to the global object so that only one instance of the client is created for the application. This will resolve issues with hot reloading that can occur when using Prisma ORM with Next.js in development mode.
 
-## = Query the Database with Prisma ORM
+## Query the Database with Prisma ORM
 Inside the app directory :
 
 ```typescript
