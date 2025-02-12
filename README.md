@@ -116,6 +116,89 @@ We then display the post's title, content, and author. If the post doesn't have 
           {post.content || "No content available."}
 ```
 
+## Getting started with prisma (Final phase)
+
+<p align="center">
+    <a href="#" style="display: block;" align="center">
+        <img src="https://i.pinimg.com/originals/1f/84/8d/1f848da8cc8c9e60c698fbe5cf85c015.gif" alt="kenpachi zaraki" width="60%" />
+    </a>
+</p>
+
+### New posts crrete page
+ROunding up the pism-application, adding a "crreate" page for posts. This will let us write our own posts and save them to the database.
+
+```bash
+mkdir -p app/posts/new && touch app/posts/new/page.tsx
+```
+this will create the page
+
+```typescript
+import Form from "next/form";
+import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+
+export default function NewPost() {
+  async function createPost(formData: FormData) {
+    "use server";
+
+    const title = formData.get("title") as string;
+    const content = formData.get("content") as string;
+
+    await prisma.post.create({
+      data: {
+        title,
+        content,
+        authorId: 1,
+      },
+    });
+
+    revalidatePath("/posts");
+    redirect("/posts");
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Create New Post</h1>
+      <Form action={createPost} className="space-y-6">
+        <div>
+          <label htmlFor="title" className="block text-lg mb-2">
+            Title
+          </label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            placeholder="Enter your post title"
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+        </div>
+        <div>
+          <label htmlFor="content" className="block text-lg mb-2">
+            Content
+          </label>
+          <textarea
+            id="content"
+            name="content"
+            placeholder="Write your post content here..."
+            rows={6}
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600"
+        >
+          Create Post
+        </button>
+      </Form>
+    </div>
+  );
+}
+```
+
+This is a functional form. When submitted the form, will create a new post in the database and redirect to the posts list page.
+`revalidatePath` call is added used to revalidate the posts list page so that it will be updated with the new post.
 
 ## Getting started with prisma (phase1)
 
