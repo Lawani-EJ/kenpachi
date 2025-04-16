@@ -216,7 +216,7 @@ We then display the post's title, content, and author. If the post doesn't have 
 </p>
 
 ### New posts crrete page
-ROunding up the pism-application, adding a "crreate" page for posts. This will let us write our own posts and save them to the database.
+Rounding up the pisma-application, adding a "create" page for posts. This will let us write our own posts and save them to the database.
 
 ```bash
 mkdir -p app/posts/new && touch app/posts/new/page.tsx
